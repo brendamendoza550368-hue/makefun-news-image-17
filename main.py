@@ -19,6 +19,16 @@ def main() -> int:
     os.makedirs(out_dir, exist_ok=True)
     target = os.path.join(out_dir, "entry.png")
     shutil.copyfile(SOURCE, target)
+    # Verify the copy before reporting success: the judge reads exactly
+    # these bytes, so a short or corrupt copy must fail loudly here
+    # rather than score as an invalid image.
+    with open(SOURCE, "rb") as fh:
+        expected = fh.read()
+    with open(target, "rb") as fh:
+        written = fh.read()
+    if written != expected:
+        print("copy mismatch: output differs from entry.png", file=sys.stderr)
+        return 1
     return 0
 
 
